@@ -1,0 +1,86 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Katana : MonoBehaviour
+{
+    // Speed of rotation
+    public float rotationSpeed = 360f; // Default rotation speed (degrees per second)
+
+    // Rotation value for each rotation
+    public float rotationValue = 360f; // Default rotation value (degrees)
+
+    // Flag to check if the object is currently rotating
+    private bool isRotating = false;
+
+    // Toggle options for each axis
+    public bool rotateX = true;
+    public bool rotateY = true;
+    public bool rotateZ = true;
+
+    // Function to set initial rotation randomly
+    void SetRandomRotation()
+    {
+        float randomZRotation = Random.Range(0f, 360f);
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, randomZRotation);
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Set initial rotation randomly
+        SetRandomRotation();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // Check for input to trigger rotation
+        if (Input.GetKeyDown(KeyCode.Q) && !isRotating)
+        {
+            // Set initial rotation randomly before starting the rotation animation
+            SetRandomRotation();
+
+            // Start rotating
+            isRotating = true;
+            RotateObject();
+        }
+    }
+
+    // Function to rotate the object
+    void RotateObject()
+    {
+        // Calculate the rotation angle based on the rotation value
+        float angle = rotationValue / Mathf.Max(0.001f, rotationSpeed); // Ensure rotationSpeed is not zero
+
+        // Rotate the object until it completes one full rotation
+        StartCoroutine(RotateCoroutine(angle));
+    }
+
+    // Coroutine to perform the rotation smoothly
+    IEnumerator RotateCoroutine(float angle)
+    {
+        float totalRotation = 0f;
+
+        // Rotate until the total rotation reaches the target angle
+        while (totalRotation < rotationValue)
+        {
+            // Apply rotation based on toggle options
+            if (rotateX)
+                transform.Rotate(Vector3.right * angle);
+            if (rotateY)
+                transform.Rotate(Vector3.up * angle);
+            if (rotateZ)
+                transform.Rotate(Vector3.forward * angle);
+
+            // Update the total rotation
+            totalRotation += Mathf.Abs(angle);
+
+            // Wait for the next frame
+            yield return null;
+        }
+
+        // Reset the flag after completing one full rotation
+        isRotating = false;
+    }
+}
